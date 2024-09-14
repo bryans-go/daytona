@@ -15,6 +15,7 @@ import (
 	"github.com/daytonaio/daytona/pkg/workspace/project"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/plumbing/protocol/packp/capability"
 	"github.com/go-git/go-git/v5/plumbing/transport"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
@@ -37,6 +38,7 @@ type IGitService interface {
 	CloneRepositoryCmd(repo *gitprovider.GitRepository, auth *http.BasicAuth) []string
 	RepositoryExists() (bool, error)
 	SetGitConfig(userData *gitprovider.GitUser) error
+	GetUnpushedCommitsInfo(branchName string) ([]project.CommitInfo, error)
 	GetGitStatus() (*project.GitStatus, error)
 }
 
@@ -187,6 +189,73 @@ func (s *Service) SetGitConfig(userData *gitprovider.GitUser) error {
 
 	return nil
 }
+func formatCommit(commit *object.Commit, branchName string) project.CommitInfo {
+	return project.CommitInfo{
+		Hash:    commit.Hash.String(),
+		Author:  commit.Author.Name,
+		Message: strings.TrimSpace(commit.Message),
+		Date:    commit.Author.When.Format("2006-01-02 15:04:05"),
+		Branch:  branchName,
+	}
+}
+
+func (s *Service) GetUnpushedCommitsInfo(branchName string) ([]project.CommitInfo, error) {
+	r, err := git.PlainOpen(s.ProjectDir)
+	if err != nil {
+		return nil, err
+	}
+
+	mainRef, err := r.Reference(plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", branchName)), true)
+	if err != nil {
+		return nil, err
+	}
+	originMainRef, err := r.Reference(plumbing.ReferenceName(fmt.Sprintf("refs/remotes/origin/%s", branchName)), true)
+	if err != nil {
+		return nil, err
+	}
+
+	mainCommitIter, err := s.getCommitIterator(r, mainRef.Hash())
+	if err != nil {
+		return nil, err
+	}
+	originMainCommitIter, err := s.getCommitIterator(r, originMainRef.Hash())
+	if err != nil {
+		return nil, err
+	}
+
+	var unpushedCommits []project.CommitInfo
+	mainCommitMap := make(map[plumbing.Hash]*object.Commit)
+
+	err = mainCommitIter.ForEach(func(commit *object.Commit) error {
+		mainCommitMap[commit.Hash] = commit
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	err = originMainCommitIter.ForEach(func(commit *object.Commit) error {
+		delete(mainCommitMap, commit.Hash)
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	for _, commit := range mainCommitMap {
+		unpushedCommits = append(unpushedCommits, formatCommit(commit, branchName))
+	}
+
+	return unpushedCommits, nil
+}
+
+func (s *Service) getCommitIterator(repo *git.Repository, branchHash plumbing.Hash) (object.CommitIter, error) {
+	cIter, err := repo.Log(&git.LogOptions{From: branchHash})
+	if err != nil {
+		return nil, err
+	}
+	return cIter, nil
+}
 
 func (s *Service) GetGitStatus() (*project.GitStatus, error) {
 	repo, err := git.PlainOpen(s.ProjectDir)
@@ -218,9 +287,14 @@ func (s *Service) GetGitStatus() (*project.GitStatus, error) {
 			Worktree: MapStatus[file.Worktree],
 		})
 	}
+	unpushedCommits, err := s.GetUnpushedCommitsInfo(ref.Name().Short())
+	if err != nil {
+		return nil, err
+	}
 
 	return &project.GitStatus{
-		CurrentBranch: ref.Name().Short(),
-		Files:         files,
+		CurrentBranch:   ref.Name().Short(),
+		Files:           files,
+		UnpushedCommits: unpushedCommits,
 	}, nil
 }

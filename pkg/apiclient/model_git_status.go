@@ -21,8 +21,9 @@ var _ MappedNullable = &GitStatus{}
 
 // GitStatus struct for GitStatus
 type GitStatus struct {
-	CurrentBranch string       `json:"currentBranch"`
-	FileStatus    []FileStatus `json:"fileStatus"`
+	CurrentBranch   string       `json:"currentBranch"`
+	FileStatus      []FileStatus `json:"fileStatus"`
+	UnpushedCommits []CommitInfo `json:"unpushedCommits,omitempty"`
 }
 
 type _GitStatus GitStatus
@@ -94,6 +95,38 @@ func (o *GitStatus) SetFileStatus(v []FileStatus) {
 	o.FileStatus = v
 }
 
+// GetUnpushedCommits returns the UnpushedCommits field value if set, zero value otherwise.
+func (o *GitStatus) GetUnpushedCommits() []CommitInfo {
+	if o == nil || IsNil(o.UnpushedCommits) {
+		var ret []CommitInfo
+		return ret
+	}
+	return o.UnpushedCommits
+}
+
+// GetUnpushedCommitsOk returns a tuple with the UnpushedCommits field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *GitStatus) GetUnpushedCommitsOk() ([]CommitInfo, bool) {
+	if o == nil || IsNil(o.UnpushedCommits) {
+		return nil, false
+	}
+	return o.UnpushedCommits, true
+}
+
+// HasUnpushedCommits returns a boolean if a field has been set.
+func (o *GitStatus) HasUnpushedCommits() bool {
+	if o != nil && !IsNil(o.UnpushedCommits) {
+		return true
+	}
+
+	return false
+}
+
+// SetUnpushedCommits gets a reference to the given []CommitInfo and assigns it to the UnpushedCommits field.
+func (o *GitStatus) SetUnpushedCommits(v []CommitInfo) {
+	o.UnpushedCommits = v
+}
+
 func (o GitStatus) MarshalJSON() ([]byte, error) {
 	toSerialize, err := o.ToMap()
 	if err != nil {
@@ -106,6 +139,9 @@ func (o GitStatus) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["currentBranch"] = o.CurrentBranch
 	toSerialize["fileStatus"] = o.FileStatus
+	if !IsNil(o.UnpushedCommits) {
+		toSerialize["unpushedCommits"] = o.UnpushedCommits
+	}
 	return toSerialize, nil
 }
 

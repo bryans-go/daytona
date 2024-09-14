@@ -1821,6 +1821,33 @@ const docTemplate = `{
                 "CloneTargetCommit"
             ]
         },
+        "CommitInfo": {
+            "type": "object",
+            "required": [
+                "author",
+                "branch",
+                "date",
+                "hash",
+                "message"
+            ],
+            "properties": {
+                "author": {
+                    "type": "string"
+                },
+                "branch": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "hash": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
         "ContainerRegistry": {
             "type": "object",
             "required": [
@@ -2223,6 +2250,12 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/FileStatus"
+                    }
+                },
+                "unpushedCommits": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/CommitInfo"
                     }
                 }
             }

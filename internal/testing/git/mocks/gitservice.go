@@ -41,6 +41,11 @@ func (m *MockGitService) GetGitStatus() (*project.GitStatus, error) {
 	return args.Get(0).(*project.GitStatus), args.Error(1)
 }
 
+func (m *MockGitService) GetUnpushedCommitsInfo(branchName string) ([]project.CommitInfo, error) {
+	args := m.Called(branchName)
+	return args.Get(0).([]project.CommitInfo), args.Error(1)
+}
+
 func NewMockGitService() *MockGitService {
 	gitService := new(MockGitService)
 	return gitService

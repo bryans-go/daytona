@@ -74,6 +74,25 @@ definitions:
     x-enum-varnames:
     - CloneTargetBranch
     - CloneTargetCommit
+  CommitInfo:
+    properties:
+      author:
+        type: string
+      branch:
+        type: string
+      date:
+        type: string
+      hash:
+        type: string
+      message:
+        type: string
+    required:
+    - author
+    - branch
+    - date
+    - hash
+    - message
+    type: object
   ContainerRegistry:
     properties:
       password:
@@ -345,6 +364,10 @@ definitions:
       fileStatus:
         items:
           $ref: '#/definitions/FileStatus'
+        type: array
+      unpushedCommits:
+        items:
+          $ref: '#/definitions/CommitInfo'
         type: array
     required:
     - currentBranch

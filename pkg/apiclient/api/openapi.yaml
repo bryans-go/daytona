@@ -1339,6 +1339,31 @@ components:
       x-enum-varnames:
       - CloneTargetBranch
       - CloneTargetCommit
+    CommitInfo:
+      example:
+        date: date
+        author: author
+        message: message
+        branch: branch
+        hash: hash
+      properties:
+        author:
+          type: string
+        branch:
+          type: string
+        date:
+          type: string
+        hash:
+          type: string
+        message:
+          type: string
+      required:
+      - author
+      - branch
+      - date
+      - hash
+      - message
+      type: object
     ContainerRegistry:
       example:
         server: server
@@ -1783,6 +1808,17 @@ components:
           name: name
           staging: null
           worktree: null
+        unpushedCommits:
+        - date: date
+          author: author
+          message: message
+          branch: branch
+          hash: hash
+        - date: date
+          author: author
+          message: message
+          branch: branch
+          hash: hash
         currentBranch: currentBranch
       properties:
         currentBranch:
@@ -1790,6 +1826,10 @@ components:
         fileStatus:
           items:
             $ref: '#/components/schemas/FileStatus'
+          type: array
+        unpushedCommits:
+          items:
+            $ref: '#/components/schemas/CommitInfo'
           type: array
       required:
       - currentBranch
@@ -1936,6 +1976,17 @@ components:
               name: name
               staging: null
               worktree: null
+            unpushedCommits:
+            - date: date
+              author: author
+              message: message
+              branch: branch
+              hash: hash
+            - date: date
+              author: author
+              message: message
+              branch: branch
+              hash: hash
             currentBranch: currentBranch
           updatedAt: updatedAt
           uptime: 0
@@ -2078,6 +2129,17 @@ components:
             name: name
             staging: null
             worktree: null
+          unpushedCommits:
+          - date: date
+            author: author
+            message: message
+            branch: branch
+            hash: hash
+          - date: date
+            author: author
+            message: message
+            branch: branch
+            hash: hash
           currentBranch: currentBranch
         updatedAt: updatedAt
         uptime: 0
@@ -2260,6 +2322,17 @@ components:
             name: name
             staging: null
             worktree: null
+          unpushedCommits:
+          - date: date
+            author: author
+            message: message
+            branch: branch
+            hash: hash
+          - date: date
+            author: author
+            message: message
+            branch: branch
+            hash: hash
           currentBranch: currentBranch
         uptime: 0
       properties:
@@ -2314,6 +2387,17 @@ components:
                 name: name
                 staging: null
                 worktree: null
+              unpushedCommits:
+              - date: date
+                author: author
+                message: message
+                branch: branch
+                hash: hash
+              - date: date
+                author: author
+                message: message
+                branch: branch
+                hash: hash
               currentBranch: currentBranch
             updatedAt: updatedAt
             uptime: 0
@@ -2352,6 +2436,17 @@ components:
                 name: name
                 staging: null
                 worktree: null
+              unpushedCommits:
+              - date: date
+                author: author
+                message: message
+                branch: branch
+                hash: hash
+              - date: date
+                author: author
+                message: message
+                branch: branch
+                hash: hash
               currentBranch: currentBranch
             updatedAt: updatedAt
             uptime: 0
@@ -2413,6 +2508,17 @@ components:
                 name: name
                 staging: null
                 worktree: null
+              unpushedCommits:
+              - date: date
+                author: author
+                message: message
+                branch: branch
+                hash: hash
+              - date: date
+                author: author
+                message: message
+                branch: branch
+                hash: hash
               currentBranch: currentBranch
             updatedAt: updatedAt
             uptime: 0
@@ -2451,6 +2557,17 @@ components:
                 name: name
                 staging: null
                 worktree: null
+              unpushedCommits:
+              - date: date
+                author: author
+                message: message
+                branch: branch
+                hash: hash
+              - date: date
+                author: author
+                message: message
+                branch: branch
+                hash: hash
               currentBranch: currentBranch
             updatedAt: updatedAt
             uptime: 0

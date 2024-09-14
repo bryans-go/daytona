@@ -82,9 +82,21 @@ func ToGitStatus(gitStatusDTO apiclient.GitStatus) *project.GitStatus {
 		files = append(files, file)
 	}
 
+	var unpushedCommits []project.CommitInfo
+	for _, commitDTO := range gitStatusDTO.UnpushedCommits {
+		unpushedCommits = append(unpushedCommits, project.CommitInfo{
+			Hash:    commitDTO.Hash,
+			Author:  commitDTO.Author,
+			Message: commitDTO.Message,
+			Date:    commitDTO.Date,
+			Branch:  commitDTO.Branch,
+		})
+	}
+
 	return &project.GitStatus{
-		CurrentBranch: gitStatusDTO.CurrentBranch,
-		Files:         files,
+		CurrentBranch:   gitStatusDTO.CurrentBranch,
+		Files:           files,
+		UnpushedCommits: unpushedCommits,
 	}
 }
 
@@ -106,9 +118,21 @@ func ToGitStatusDTO(gitStatus *project.GitStatus) *apiclient.GitStatus {
 		fileStatusDTO = append(fileStatusDTO, fileDTO)
 	}
 
+	var unpushedCommitsDTO []apiclient.CommitInfo
+	for _, commit := range gitStatus.UnpushedCommits {
+		unpushedCommitsDTO = append(unpushedCommitsDTO, apiclient.CommitInfo{
+			Hash:    commit.Hash,
+			Author:  commit.Author,
+			Message: commit.Message,
+			Date:    commit.Date,
+			Branch:  commit.Branch,
+		})
+	}
+
 	return &apiclient.GitStatus{
-		CurrentBranch: gitStatus.CurrentBranch,
-		FileStatus:    fileStatusDTO,
+		CurrentBranch:   gitStatus.CurrentBranch,
+		FileStatus:      fileStatusDTO,
+		UnpushedCommits: unpushedCommitsDTO,
 	}
 }
 

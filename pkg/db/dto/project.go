@@ -29,9 +29,18 @@ type FileStatusDTO struct {
 	Worktree string `json:"worktree"`
 }
 
+type CommitInfoDTO struct {
+	Hash    string `json:"hash"`
+	Author  string `json:"author"`
+	Message string `json:"message"`
+	Date    string `json:"date"`
+	Branch  string `json:"branch"`
+}
+
 type GitStatusDTO struct {
-	CurrentBranch string           `json:"currentBranch"`
-	Files         []*FileStatusDTO `json:"fileStatus"`
+	CurrentBranch   string           `json:"currentBranch"`
+	Files           []*FileStatusDTO `json:"fileStatus"`
+	UnpushedCommits []*CommitInfoDTO `json:"unpushedCommits,omitempty"`
 }
 
 type ProjectStateDTO struct {
@@ -117,6 +126,16 @@ func ToGitStatusDTO(status *project.GitStatus) *GitStatusDTO {
 		statusDTO.Files = append(statusDTO.Files, ToFileStatusDTO(file))
 	}
 
+	for _, commit := range status.UnpushedCommits {
+		statusDTO.UnpushedCommits = append(statusDTO.UnpushedCommits, &CommitInfoDTO{
+			Hash:    commit.Hash,
+			Author:  commit.Author,
+			Message: commit.Message,
+			Date:    commit.Date,
+			Branch:  commit.Branch,
+		})
+	}
+
 	return statusDTO
 }
 
@@ -186,6 +205,16 @@ func ToGitStatus(statusDTO *GitStatusDTO) *project.GitStatus {
 
 	for _, file := range statusDTO.Files {
 		status.Files = append(status.Files, ToFileStatus(file))
+	}
+
+	for _, commit := range statusDTO.UnpushedCommits {
+		status.UnpushedCommits = append(status.UnpushedCommits, project.CommitInfo{
+			Hash:    commit.Hash,
+			Author:  commit.Author,
+			Message: commit.Message,
+			Date:    commit.Date,
+			Branch:  commit.Branch,
+		})
 	}
 
 	return status

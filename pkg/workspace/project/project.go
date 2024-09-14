@@ -40,8 +40,9 @@ type ProjectState struct {
 } // @name ProjectState
 
 type GitStatus struct {
-	CurrentBranch string        `json:"currentBranch" validate:"required"`
-	Files         []*FileStatus `json:"fileStatus" validate:"required"`
+	CurrentBranch   string        `json:"currentBranch" validate:"required"`
+	Files           []*FileStatus `json:"fileStatus" validate:"required"`
+	UnpushedCommits []CommitInfo  `json:"unpushedCommits" validate:"optional"`
 } // @name GitStatus
 
 type FileStatus struct {
@@ -64,6 +65,14 @@ const (
 	Copied             Status = "Copied"
 	UpdatedButUnmerged Status = "Updated but unmerged"
 )
+
+type CommitInfo struct {
+	Hash    string `json:"hash" validate:"required"`
+	Author  string `json:"author" validate:"required"`
+	Message string `json:"message" validate:"required"`
+	Date    string `json:"date" validate:"required"`
+	Branch  string `json:"branch" validate:"required"`
+} // @name CommitInfo
 
 type ProjectEnvVarParams struct {
 	ApiUrl    string
