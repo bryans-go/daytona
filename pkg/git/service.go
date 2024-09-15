@@ -38,7 +38,7 @@ type IGitService interface {
 	CloneRepositoryCmd(repo *gitprovider.GitRepository, auth *http.BasicAuth) []string
 	RepositoryExists() (bool, error)
 	SetGitConfig(userData *gitprovider.GitUser) error
-	GetUnpushedCommitsInfo(branchName string) ([]project.CommitInfo, error)
+	GetUnpushedCommitsInfo() ([]project.CommitInfo, error)
 	GetGitStatus() (*project.GitStatus, error)
 }
 
@@ -199,16 +199,27 @@ func formatCommit(commit *object.Commit, branchName string) project.CommitInfo {
 	}
 }
 
-func (s *Service) GetUnpushedCommitsInfo(branchName string) ([]project.CommitInfo, error) {
+func (s *Service) GetUnpushedCommitsInfo() ([]project.CommitInfo, error) {
+	// Open the repository
 	r, err := git.PlainOpen(s.ProjectDir)
 	if err != nil {
 		return nil, err
 	}
 
+	// Get the current branch reference (head)
+	ref, err := r.Head()
+	if err != nil {
+		return nil, err
+	}
+
+	branchName := ref.Name().Short()
+
+	// Fetch commits for the current branch dynamically
 	mainRef, err := r.Reference(plumbing.ReferenceName(fmt.Sprintf("refs/heads/%s", branchName)), true)
 	if err != nil {
 		return nil, err
 	}
+
 	originMainRef, err := r.Reference(plumbing.ReferenceName(fmt.Sprintf("refs/remotes/origin/%s", branchName)), true)
 	if err != nil {
 		return nil, err
@@ -218,6 +229,7 @@ func (s *Service) GetUnpushedCommitsInfo(branchName string) ([]project.CommitInf
 	if err != nil {
 		return nil, err
 	}
+
 	originMainCommitIter, err := s.getCommitIterator(r, originMainRef.Hash())
 	if err != nil {
 		return nil, err
@@ -287,7 +299,7 @@ func (s *Service) GetGitStatus() (*project.GitStatus, error) {
 			Worktree: MapStatus[file.Worktree],
 		})
 	}
-	unpushedCommits, err := s.GetUnpushedCommitsInfo(ref.Name().Short())
+	unpushedCommits, err := s.GetUnpushedCommitsInfo()
 	if err != nil {
 		return nil, err
 	}
